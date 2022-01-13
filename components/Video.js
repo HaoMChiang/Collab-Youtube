@@ -1,9 +1,9 @@
 function Video({ video }) {
   return (
-    <div className="flex flex-col p-2">
+    <div className="flex flex-col p-2 items-center cursor-pointer">
       <div>
         <img
-          className="w-96 h-72 object-contain"
+          className="w-full h-72 object-contain"
           src={video?.thumbnail_url}
           alt=""
         />
