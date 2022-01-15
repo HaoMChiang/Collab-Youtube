@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Sidebar from "../components/Sidebar";
 import Center from "../components/Center";
-
+import Modal from "../components/Modal";
 export default function Home({ data }) {
   console.log(data);
   return (
@@ -15,6 +15,7 @@ export default function Home({ data }) {
         <div className="flex">
           <Sidebar />
           <Center data={data} />
+          <Modal />
         </div>
       </main>
     </div>
