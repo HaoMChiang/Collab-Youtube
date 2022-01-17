@@ -4,18 +4,62 @@ import { Dialog, Transition } from "@headlessui/react";
 import { VideoCameraIcon } from "@heroicons/react/outline";
 import { useRecoilState } from "recoil";
 import { modalState } from "../atoms/modalState";
+import { db } from "../firebase";
+import {
+  doc,
+  addDoc,
+  setDoc,
+  collection,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { useSession } from "next-auth/react";
 
 export default function Modal() {
-  const [isModal, setIsModal] = useRecoilState(modalState);
-
   const cancelButtonRef = useRef(null);
+  const [isModal, setIsModal] = useRecoilState(modalState);
+  const [playlistName, setPlaylistName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { data: session } = useSession();
+
+  const createPlaylist = async () => {
+    console.log("createPlaylist ran");
+    if (loading || playlistName.length == 0) return;
+    setLoading(true);
+    console.log("start try");
+    try {
+      const docRef = await addDoc(
+        collection(db, session.user.email.toString()),
+        {
+          gmail: session.user.email,
+          playlistName: playlistName,
+          createdTime: serverTimestamp(),
+        }
+      );
+      //   .collection("users")
+      //   .doc(session.user.email)
+      //   .collection("playlist")
+      //   .add({
+      //     playlistName: playlistName,
+      //     timestamp: serverTimestamp(),
+      //   });
+      console.log("create playlist: ", docRef.id);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setIsModal(false);
+      setPlaylistName("");
+    }
+    console.log("end createplaylist");
+  };
 
   return (
     <Transition.Root show={isModal} as={Fragment}>
       <Dialog
         as="div"
         className="fixed z-10 inset-0 overflow-y-auto"
-        initialFocus={cancelButtonRef}
+        // initialFocus={cancelButtonRef}
         onClose={setIsModal}
       >
         <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -74,9 +118,12 @@ export default function Modal() {
                           className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
                           type="text"
                           placeholder="Enter playlist name"
+                          value={playlistName}
+                          onChange={(e) => setPlaylistName(e.target.value)}
                           aria-label="playlist name"
                         />
                       </div>
+                      <div>{playlistName}</div>
                     </div>
                   </div>
                 </div>
@@ -85,7 +132,7 @@ export default function Modal() {
                 <button
                   type="button"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => setIsModal(false)}
+                  onClick={() => createPlaylist()}
                 >
                   Create Playlist
                 </button>

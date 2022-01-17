@@ -4,9 +4,11 @@ import Center from "../components/Center";
 import Modal from "../components/Modal";
 import { useRecoilValue } from "recoil";
 import { modalState } from "../atoms/modalState";
+import { getSession } from "next-auth/react";
+
 export default function Home({ data }) {
-  console.log(data);
   const isModal = useRecoilValue(modalState);
+
   return (
     <div className="h-screen overflow-hidden">
       <Head>
@@ -33,6 +35,7 @@ export async function getServerSideProps(context) {
   return {
     props: {
       data,
+      session: await getSession(context),
     },
   };
 }
