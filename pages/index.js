@@ -3,11 +3,36 @@ import Sidebar from "../components/Sidebar";
 import Center from "../components/Center";
 import Modal from "../components/Modal";
 import { useRecoilValue } from "recoil";
-import { modalState } from "../atoms/modalState";
-import { getSession } from "next-auth/react";
+import { modalState, VideoMenuState } from "../atoms/modalState";
+import { getSession, useSession } from "next-auth/react";
+import VideoSaveMenu from "../components/VideoSaveMenu";
+// import { useEffect, useState } from "react";
+// import { db } from "../firebase";
+// import { query, onSnapshot, collection } from "firebase/firestore";
 
 export default function Home({ data }) {
   const isModal = useRecoilValue(modalState);
+  const isVideoMenu = useRecoilValue(VideoMenuState);
+  // const [playlists, setPlaylists] = useState([]);
+  // const { data: session } = useSession();
+
+  // useEffect(async () => {
+  //   console.log("useEffect ran");
+  //   if (!session) return;
+  //   onSnapshot(
+  //     query(collection(db, session.user.email.toString())),
+  //     (snapshot) => {
+  //       setPlaylists(snapshot.docs);
+  //     }
+  //   );
+  //   console.log("finished useEffect");
+  // }, [db]);
+
+  // {
+  //   playlists.map((playlist) => {
+  //     console.log("index: ", playlist.data().name);
+  //   });
+  // }
 
   return (
     <div className="h-screen overflow-hidden">
@@ -21,6 +46,7 @@ export default function Home({ data }) {
           <Sidebar />
           <Center data={data} />
           {isModal && <Modal />}
+          {isVideoMenu && <VideoSaveMenu />}
         </div>
       </main>
     </div>

@@ -28,28 +28,36 @@ export default function Modal() {
     setLoading(true);
     console.log("start try");
     try {
+      // const docRef = await addDoc(
+      //   collection(
+      //     db,
+      //     "collabtube",
+      //     "users",
+      //     session.user.email.toString(),
+      //     "details",
+      //     "playlists"
+      //   ),
+      //   {
+      //     gmail: session.user.email,
+      //     playlistName: playlistName,
+      //     createdTime: serverTimestamp(),
+      //   }
+      // );
       const docRef = await addDoc(
-        collection(db, session.user.email.toString()),
+        collection(db, "users", session.user.email.toString(), "playlists"),
         {
           gmail: session.user.email,
           playlistName: playlistName,
           createdTime: serverTimestamp(),
         }
       );
-      //   .collection("users")
-      //   .doc(session.user.email)
-      //   .collection("playlist")
-      //   .add({
-      //     playlistName: playlistName,
-      //     timestamp: serverTimestamp(),
-      //   });
-      console.log("create playlist: ", docRef.id);
+      // console.log("create playlist: ", docRef.id);
     } catch (err) {
-      console.error(err);
+      console.error("Error in Creating Playlist: ", err);
     } finally {
       setLoading(false);
-      setIsModal(false);
       setPlaylistName("");
+      setIsModal(false);
     }
     console.log("end createplaylist");
   };
@@ -123,7 +131,6 @@ export default function Modal() {
                           aria-label="playlist name"
                         />
                       </div>
-                      <div>{playlistName}</div>
                     </div>
                   </div>
                 </div>

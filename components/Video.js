@@ -1,8 +1,12 @@
 import { PlusIcon } from "@heroicons/react/outline";
 import { useSession } from "next-auth/react";
-
+import { useRecoilState } from "recoil";
+import { currVideoState, VideoMenuState } from "../atoms/modalState";
 function Video({ video }) {
   const { data: session } = useSession();
+  const [isVideoSaveMenu, setIsVideoSaveMenu] = useRecoilState(VideoMenuState);
+  const [currVideo, setCurrVideo] = useRecoilState(currVideoState);
+  // console.log(video);
 
   return (
     <div className="max-w-sm rounded overflow-hidden cursor-pointer hover:scale-105 transition transform ease-in duration-200">
@@ -15,7 +19,13 @@ function Video({ video }) {
             {video?.views} views
           </p>
           {session && (
-            <div className="flex items-center space-x-2 mr-2 hover:text-gray-300">
+            <div
+              className="flex items-center space-x-2 mr-2 hover:text-gray-300"
+              onClick={() => {
+                setCurrVideo(video);
+                setIsVideoSaveMenu(true);
+              }}
+            >
               <PlusIcon className="w-5 h-5 rounded-full" />
               <p>Save</p>
             </div>
