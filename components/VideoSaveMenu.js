@@ -28,7 +28,7 @@ function VideoSaveMenu() {
   useEffect(() => {
     if (!session) return;
     try {
-      const docRef = onSnapshot(
+      onSnapshot(
         query(
           collection(db, "users", session.user.email.toString(), "playlists")
         ),

@@ -56,9 +56,10 @@ function Sidebar() {
   // console.log("playlist: ", playlists);
 
   return (
-    <div className="hidden md:inline-flex p-4 text-xs md:text-sm h-screen overflow-y-scroll sm:max-w-[12rem] lg:max-w-[15rem]">
-      {/* // <div className="text-gray-500 p-5 text-xs md:text-sm border-r border-gray-900 overflow-y-scroll h-screen scrollbar-hide sm:max-w-[12rem] lg:max-w-[15rem] hidden md:inline-flex"> */}
-      <div className="space-y-4 flex flex-col overflow-x-clip">
+    // <div className="hidden md:inline-flex p-4 text-xs md:text-sm h-screen overflow-y-scroll sm:max-w-[12rem] lg:max-w-[15rem]">
+    //   <div className="space-y-4 flex flex-col overflow-x-clip">
+    <div className="text-gray-500 p-5 text-xs md:text-sm border-r border-gray-900 overflow-y-scroll h-screen scrollbar-hide sm:max-w-[12rem] lg:max-w-[15rem] hidden md:inline-flex">
+      <div className="space-y-4">
         <div
           className="flex space-x-2 items-center hover:text-gray-300 text-left cursor-pointer"
           onClick={() => router.push("/")}
@@ -66,22 +67,23 @@ function Sidebar() {
           <HomeIcon className="h-5 w-5" />
           <p>Home</p>
         </div>
-        <button className="text-left hover:text-gray-300">
-          {session ? (
-            <div className="flex items-center space-x-2" onClick={signOut}>
-              <ArrowLeftIcon className="w-5 h-5" />
-              <p>Logout</p>
-            </div>
-          ) : (
-            <div
-              className="flex items-center space-x-2"
-              onClick={() => signIn("google", { callbackUrl: "/" })}
-            >
-              <ArrowRightIcon className="w-5 h-5" />
-              <p>Login</p>
-            </div>
-          )}
-        </button>
+        {session ? (
+          <div
+            className="flex items-center space-x-2 text-left hover:text-gray-300"
+            onClick={signOut}
+          >
+            <ArrowLeftIcon className="w-5 h-5" />
+            <p>Logout</p>
+          </div>
+        ) : (
+          <div
+            className="flex items-center space-x-2 text-left hover:text-gray-300"
+            onClick={() => signIn("google", { callbackUrl: "/" })}
+          >
+            <ArrowRightIcon className="w-5 h-5" />
+            <p>Login</p>
+          </div>
+        )}
         {session && (
           <button
             className="text-left hover:text-gray-300"
