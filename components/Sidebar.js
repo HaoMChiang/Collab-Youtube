@@ -69,7 +69,7 @@ function Sidebar() {
         </div>
         {session ? (
           <div
-            className="flex items-center space-x-2 text-left hover:text-gray-300"
+            className="flex items-center space-x-2 text-left hover:text-gray-300 cursor-pointer"
             onClick={signOut}
           >
             <ArrowLeftIcon className="w-5 h-5" />
@@ -77,7 +77,7 @@ function Sidebar() {
           </div>
         ) : (
           <div
-            className="flex items-center space-x-2 text-left hover:text-gray-300"
+            className="flex items-center space-x-2 text-left hover:text-gray-300 cursor-pointer"
             onClick={() => signIn("google", { callbackUrl: "/" })}
           >
             <ArrowRightIcon className="w-5 h-5" />
