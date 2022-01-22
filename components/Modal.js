@@ -49,6 +49,7 @@ export default function Modal() {
           gmail: session.user.email,
           playlistName: playlistName,
           createdTime: serverTimestamp(),
+          videos: [],
         }
       );
       // console.log("create playlist: ", docRef.id);

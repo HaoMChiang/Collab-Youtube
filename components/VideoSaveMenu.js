@@ -13,13 +13,15 @@ import {
   onSnapshot,
   query,
   deleteDoc,
+  runTransaction,
+  orderBy,
 } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 
 function VideoSaveMenu() {
   const cancelButtonRef = useRef(null);
   const { data: session } = useSession();
-  const [videoMenu, setVideoMenuState] = useRecoilState(VideoMenuState);
+  const [videoMenu, setVideoMenu] = useRecoilState(VideoMenuState);
   const [playlists, setPlaylists] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currVideo, setCurrVideo] = useRecoilState(currVideoState);
@@ -30,7 +32,8 @@ function VideoSaveMenu() {
     try {
       onSnapshot(
         query(
-          collection(db, "users", session.user.email.toString(), "playlists")
+          collection(db, "users", session.user.email.toString(), "playlists"),
+          orderBy("createdTime")
         ),
         (snapshot) => {
           setPlaylists(snapshot.docs);
@@ -71,25 +74,19 @@ function VideoSaveMenu() {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const docRef = await setDoc(
-        doc(
+      await runTransaction(db, async (transaction) => {
+        const listDocRef = doc(
           db,
           "users",
           session.user.email.toString(),
           "playlists",
-          playlist.id,
-          "videos",
-          currVideo.video_id
-        ),
-        {
-          title: currVideo.title,
-          views: currVideo.views,
-          description: currVideo.description,
-          imageUrl: currVideo.thumbnail_url,
-          videoId: currVideo.video_id,
-          timestamp: serverTimestamp(),
-        }
-      );
+          playlist.id
+        );
+        const listDoc = await transaction.get(listDocRef);
+
+        const newVideos = [...listDoc.data().videos, currVideo];
+        transaction.update(listDocRef, { videos: newVideos });
+      });
 
       await setDoc(
         doc(
@@ -110,6 +107,7 @@ function VideoSaveMenu() {
       console.error("Save to playlist error: ", error);
     } finally {
       setIsLoading(false);
+      // setVideoMenu(false);
     }
   };
 
@@ -118,17 +116,21 @@ function VideoSaveMenu() {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      await deleteDoc(
-        doc(
+      await runTransaction(db, async (transaction) => {
+        const listDocRef = doc(
           db,
           "users",
           session.user.email.toString(),
           "playlists",
-          playlist.id,
-          "videos",
-          currVideo.video_id
-        )
-      );
+          playlist.id
+        );
+        const listDoc = await transaction.get(listDocRef);
+
+        const newVideos = listDoc
+          .data()
+          .videos.filter((video) => video.video_id !== currVideo.video_id);
+        transaction.update(listDocRef, { videos: newVideos });
+      });
 
       await deleteDoc(
         doc(
@@ -145,6 +147,7 @@ function VideoSaveMenu() {
       console.error("remove error: ", err);
     } finally {
       setIsLoading(false);
+      // setVideoMenu(false);
     }
     return;
   };
@@ -154,7 +157,7 @@ function VideoSaveMenu() {
       <Dialog
         as="div"
         className="fixed z-10 inset-0 overflow-y-auto"
-        onClose={setVideoMenuState}
+        onClose={setVideoMenu}
       >
         <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
@@ -206,7 +209,7 @@ function VideoSaveMenu() {
                               onClick={(e) => removeFromPlaylist(e, playlist)}
                               className="cursor-pointer"
                             >
-                              <HeartIconSolid className="w-10 h-10" />
+                              <HeartIconSolid className="w-10 h-10 text-red-700" />
                             </div>
                           ) : (
                             <div
@@ -231,7 +234,7 @@ function VideoSaveMenu() {
                 <button
                   type="button"
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => setVideoMenuState(false)}
+                  onClick={() => setVideoMenu(false)}
                   ref={cancelButtonRef}
                 >
                   Cancel

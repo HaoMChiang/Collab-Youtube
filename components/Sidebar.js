@@ -5,7 +5,7 @@ import {
   ViewListIcon,
   HomeIcon,
 } from "@heroicons/react/outline";
-import { collection, onSnapshot, query } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -16,41 +16,20 @@ import { db } from "../firebase";
 function Sidebar() {
   const { data: session } = useSession();
   const [isModal, setIsModal] = useRecoilState(modalState);
-  console.log(session);
-
   const [playlists, setPlaylists] = useState([]);
   const router = useRouter();
 
   useEffect(async () => {
-    console.log("useEffect ran");
     if (!session) return;
-    // onSnapshot(
-    //   query(
-    //     collection(
-    //       db,
-    //       "collabtube",
-    //       "users",
-    //       session.user.email.toString(),
-    //       "details",
-    //       "playlists"
-    //     )
-    //   ),
-    //   (snapshot) => {
-    //     setPlaylists(snapshot.docs);
-    //   }
-    // );
-
     onSnapshot(
       query(
-        collection(db, "users", session.user.email.toString(), "playlists")
+        collection(db, "users", session.user.email.toString(), "playlists"),
+        orderBy("createdTime")
       ),
       (snapshot) => {
         setPlaylists(snapshot.docs);
       }
     );
-
-    // console.log("query: ", querySnapshot);
-    console.log("finished useEffect");
   }, [db]);
 
   // console.log("playlist: ", playlists);
@@ -70,7 +49,10 @@ function Sidebar() {
         {session ? (
           <div
             className="flex items-center space-x-2 text-left hover:text-gray-300 cursor-pointer"
-            onClick={signOut}
+            onClick={() => {
+              signOut();
+              router.push("/");
+            }}
           >
             <ArrowLeftIcon className="w-5 h-5" />
             <p>Logout</p>
